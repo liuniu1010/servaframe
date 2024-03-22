@@ -64,52 +64,6 @@ public class DBServiceTest
         return employee;
     }
 
-    private void insertEmployee(VersionEntity employee) {
-        // perpare the task
-        InsertEmployeeTask insertEmployeeTask = new InsertEmployeeTask(employee);
-
-        // get db service from factory
-        DBServiceIFC dbService = ServiceFactory.getDBService();
-        // submit the add addemployee action
-        dbService.executeSaveTask(insertEmployeeTask);
-    } 
-
-    private void insertEmployeeWithException(VersionEntity employee) {
-        // perpare the task
-        InsertEmployeeWithExceptionTask insertEmployeeWithExceptionTask = new InsertEmployeeWithExceptionTask(employee);
-
-        // get db service from factory
-        DBServiceIFC dbService = ServiceFactory.getDBService();
-        // submit the add addemployee action
-        dbService.executeSaveTask(insertEmployeeWithExceptionTask);
-    }
- 
-    private void updateEmployee(VersionEntity employee) {
-        // perpare the task
-        UpdateEmployeeTask updateEmployeeTask = new UpdateEmployeeTask(employee);
-
-        // get db service from factory
-        DBServiceIFC dbService = ServiceFactory.getDBService();
-        // submit the add addemployee action
-        dbService.executeSaveTask(updateEmployeeTask);
-    }
- 
-    private void deleteEmployee(VersionEntity employee) {
-        // perpare the task
-        DeleteEmployeeTask deleteEmployeeTask = new DeleteEmployeeTask(employee);
-
-        // get db service from factory
-        DBServiceIFC dbService = ServiceFactory.getDBService();
-        // submit the add addemployee action
-        dbService.executeSaveTask(deleteEmployeeTask);
-    }
-
-    private int getNumberOfEmployee() {
-        DBServiceIFC dbService = ServiceFactory.getDBService();
-        Object result = dbService.executeQueryTask(new CheckNumberOfEmployeeTask());
-        return new Integer(result.toString()).intValue();
-    }
-
     public void testInsert() {
         VersionEntity employee = generateEmployee();
         int numberBefore = getNumberOfEmployee();
@@ -119,6 +73,26 @@ public class DBServiceTest
         assertEquals(numberAfter, 1);
         System.out.println("testInsert passed");
     }
+
+    private void insertEmployee(VersionEntity employee) {
+        // instantiate DBService
+        DBServiceIFC dbService = ServiceFactory.getDBService();
+
+        // start to execute Task
+        dbService.executeSaveTask(new DBSaveTaskIFC() {
+            @Override
+            public Object save(DBConnectionIFC dbConnection) {
+                try {
+                    // do business logic
+                    dbConnection.insert(employee);
+                    return null;
+                }
+                catch(SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+    } 
 
     public void testTransaction() {
         VersionEntity employee = generateEmployee();
@@ -134,6 +108,30 @@ public class DBServiceTest
         System.out.println("testTransaction passed");
     }
 
+    private void insertEmployeeWithException(VersionEntity employee) {
+        // instantiate DBService
+        DBServiceIFC dbService = ServiceFactory.getDBService();
+
+        // start to execute Task
+        dbService.executeSaveTask(new DBSaveTaskIFC() {
+            @Override
+            public Object save(DBConnectionIFC dbConnection) {
+                try {
+                    // do business logic
+                    dbConnection.insert(employee);
+                    if(true) {
+                        // meet exception
+                        throw new RuntimeException("test roll back");
+                    }
+                    return null;
+                }
+                catch(SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+    }
+ 
     public void testUpdate() {
         VersionEntity employee = generateEmployee();
         insertEmployee(employee);
@@ -144,6 +142,26 @@ public class DBServiceTest
         System.out.println("testUpdate passed");
     }
 
+    private void updateEmployee(VersionEntity employee) {
+        // instantiate DBService
+        DBServiceIFC dbService = ServiceFactory.getDBService();
+
+        // start to execute Task
+        dbService.executeSaveTask(new DBSaveTaskIFC() {
+            @Override
+            public Object save(DBConnectionIFC dbConnection) {
+                try {
+                    // do business logic
+                    dbConnection.update(employee);
+                    return null;
+                }
+                catch(SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+    }
+ 
     public void testDelete() {
         VersionEntity employee = generateEmployee();
         insertEmployee(employee);
@@ -155,19 +173,45 @@ public class DBServiceTest
         System.out.println("testDelete passed");
     }
 
-    private String getEmployeeName(long employeeId) {
+    private void deleteEmployee(VersionEntity employee) {
+        // instantiate DBService
         DBServiceIFC dbService = ServiceFactory.getDBService();
-        return (String)dbService.executeQueryTask(new CheckNameTask(employeeId));
+
+        // start to execute Task
+        dbService.executeSaveTask(new DBSaveTaskIFC() {
+            @Override
+            public Object save(DBConnectionIFC dbConnection) {
+                try {
+                    // do business logic
+                    dbConnection.delete(employee);
+                    return null;
+                }
+                catch(SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
     }
 
-    private List<Map<String, Object>> queryBySQL() {
+    private int getNumberOfEmployee() {
+        // instantiate DBService
         DBServiceIFC dbService = ServiceFactory.getDBService();
-        return (List<Map<String, Object>>)dbService.executeQueryTask(new QueryBySQLTask());
-    }
 
-    private VersionEntity loadById(long employeeId) {
-        DBServiceIFC dbService = ServiceFactory.getDBService();
-        return (VersionEntity)dbService.executeQueryTask(new LoadByIdTask(employeeId));
+        // start to execute Task
+        Object result = dbService.executeQueryTask(new DBQueryTaskIFC() {
+            @Override
+            public Object query(DBConnectionIFC dbConnection) {
+                try {
+                    // do business logic
+                    String sql = "select count(*) as number from employee";
+                    return dbConnection.queryScalar(sql);
+                }
+                catch(SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+        return new Integer(result.toString()).intValue();
     }
 
     public void testQueryScalar() {
@@ -178,12 +222,55 @@ public class DBServiceTest
         System.out.println("testQueryScalar passed");
     }
 
+    private String getEmployeeName(long employeeId) {
+        // instantiate DBService
+        DBServiceIFC dbService = ServiceFactory.getDBService();
+
+        // start to execute Task
+        return (String)dbService.executeQueryTask(new DBQueryTaskIFC() {
+            @Override
+            public Object query(DBConnectionIFC dbConnection) {
+                try {
+                    // do business logic
+                    String sql = "select name from employee where id = ?";
+                    List<Object> params = new ArrayList<Object>();
+                    params.add(employeeId);
+                    SQLStruct sqlStruct = new SQLStruct(sql, params);
+                    return dbConnection.queryScalar(sqlStruct);
+                }
+                catch(SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+    }
+
     public void testQuery() {
         VersionEntity employee = generateEmployee();
         insertEmployee(employee);
         List<Map<String, Object>> result = queryBySQL();
         assertTrue(result.size() > 0);
         System.out.println("testQuery passed");
+    }
+
+    private List<Map<String, Object>> queryBySQL() {
+        // instantiate DBService
+        DBServiceIFC dbService = ServiceFactory.getDBService();
+
+        // start to execute Task
+        return (List<Map<String, Object>>)dbService.executeQueryTask(new DBQueryTaskIFC() {
+            @Override
+            public Object query(DBConnectionIFC dbConnection) {
+                try {
+                    // do business logic
+                    String sql = "select * from employee";
+                    return dbConnection.query(sql);
+                }
+                catch(SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
     }
 
     public void testLoadById() {
@@ -193,80 +280,24 @@ public class DBServiceTest
         assertEquals(versionEntity.getAttribute("name"), "Tom");
         System.out.println("testLoadById passed");
     }
-}
 
-class InsertEmployeeTask implements DBSaveTaskIFC {
-    private VersionEntity employee;
-    public InsertEmployeeTask(VersionEntity inputEmployee) {
-        employee = inputEmployee;
-    }
+    private VersionEntity loadById(long employeeId) {
+        // instantiate DBService
+        DBServiceIFC dbService = ServiceFactory.getDBService();
 
-    @Override
-    public Object save(DBConnectionIFC dbConnection) {
-        try {
-            dbConnection.insert(employee);
-            return null;
-        }
-        catch(SQLException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-}
-
-class InsertEmployeeWithExceptionTask implements DBSaveTaskIFC {
-    private VersionEntity employee;
-    public InsertEmployeeWithExceptionTask(VersionEntity inputEmployee) {
-        employee = inputEmployee;
-    }
-
-    @Override
-    public Object save(DBConnectionIFC dbConnection) {
-        try {
-            dbConnection.insert(employee);
-            if(true) {
-                throw new RuntimeException("test roll back");
+        // start to execute Task
+        return (VersionEntity)dbService.executeQueryTask(new DBQueryTaskIFC() {
+            @Override
+            public Object query(DBConnectionIFC dbConnection) {
+                try {
+                    // do business logic
+                    return dbConnection.loadVersionEntityById("employee", employeeId);
+                }
+                catch(SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
-            return null;
-        }
-        catch(SQLException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-}
-
-class UpdateEmployeeTask implements DBSaveTaskIFC {
-    private VersionEntity employee;
-    public UpdateEmployeeTask(VersionEntity inputEmployee) {
-        employee = inputEmployee;
-    }
-
-    @Override
-    public Object save(DBConnectionIFC dbConnection) {
-        try {
-            dbConnection.update(employee);
-            return null;
-        }
-        catch(SQLException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-}
-
-class DeleteEmployeeTask implements DBSaveTaskIFC {
-    private VersionEntity employee;
-    public DeleteEmployeeTask(VersionEntity inputEmployee) {
-        employee = inputEmployee;
-    }
-
-    @Override
-    public Object save(DBConnectionIFC dbConnection) {
-        try {
-            dbConnection.delete(employee);
-            return null;
-        }
-        catch(SQLException ex) {
-            throw new RuntimeException(ex);
-        }
+        });
     }
 }
 
@@ -277,70 +308,6 @@ class CleanDatabaseTask implements DBSaveTaskIFC {
             String sql = "delete from employee";
             dbConnection.execute(sql);
             return null;
-        }
-        catch(SQLException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-}
-
-class CheckNumberOfEmployeeTask implements DBQueryTaskIFC {
-    @Override
-    public Object query(DBConnectionIFC dbConnection) {
-        try {
-            String sql = "select count(*) as number from employee";
-            return dbConnection.queryScalar(sql);
-        }
-        catch(SQLException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-}
-
-class CheckNameTask implements DBQueryTaskIFC {
-    private long employeeId;
-    public CheckNameTask(long inputEmployeeId) {
-        employeeId = inputEmployeeId;
-    }
-
-    @Override
-    public Object query(DBConnectionIFC dbConnection) {
-        try {
-            String sql = "select name from employee where id = ?";
-            List<Object> params = new ArrayList<Object>();
-            params.add(employeeId);
-            SQLStruct sqlStruct = new SQLStruct(sql, params);
-            return dbConnection.queryScalar(sqlStruct);
-        }
-        catch(SQLException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-}
-
-class QueryBySQLTask implements DBQueryTaskIFC {
-    @Override
-    public Object query(DBConnectionIFC dbConnection) {
-        try {
-            String sql = "select * from employee";
-            return dbConnection.query(sql);
-        }
-        catch(SQLException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-}
-
-class LoadByIdTask implements DBQueryTaskIFC {
-    private long employeeId;
-    public LoadByIdTask(long inputEmployeeId) {
-        employeeId = inputEmployeeId;
-    }
-
-    @Override
-    public Object query(DBConnectionIFC dbConnection) {
-        try {
-            return dbConnection.loadVersionEntityById("employee", employeeId);
         }
         catch(SQLException ex) {
             throw new RuntimeException(ex);
