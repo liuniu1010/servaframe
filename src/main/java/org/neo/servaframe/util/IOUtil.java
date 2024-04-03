@@ -14,6 +14,7 @@ import java.io.FileOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 /***
  * utility class to provide methods about IO related functions
@@ -92,6 +93,21 @@ public class IOUtil {
 
     public static void stringToOutputStream(String content, OutputStream outputStream) throws IOException {
         outputStream.write(content.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static byte[] inputStreamToBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        int nRead;
+        byte[] data = new byte[1024];
+        while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, nRead);
+        }
+
+        return buffer.toByteArray();
+    }
+
+    public static String inputStreamToBase64(InputStream inputStream) throws IOException {
+        return Base64.getEncoder().encodeToString(inputStreamToBytes(inputStream));
     }
 
     public static void closeInputStream(InputStream in) {
