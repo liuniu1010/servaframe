@@ -1,0 +1,43 @@
+package org.neo.servaframe;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Date;
+import java.util.Set;
+import java.util.HashSet;
+
+import java.io.*;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import org.neo.servaframe.util.*;
+
+/**
+ * Unit test for simple App.
+ */
+public class IOUtilTest 
+    extends TestCase {
+    /**
+     * Create the test case
+     *
+     * @param testName name of the test case
+     */
+    public IOUtilTest( String testName ) {
+        super( testName );
+    }
+
+    /**
+     * @return the suite of tests being tested
+     */
+    public static Test suite() {
+        return new TestSuite( IOUtilTest.class );
+    }
+
+    public void testBase64() throws Exception {
+        InputStream in = new FileInputStream("/tmp/dogandcat.png");
+        String base64 = IOUtil.inputStreamToBase64(in);
+        System.out.println("base64 = " + base64);
+    }
+}
