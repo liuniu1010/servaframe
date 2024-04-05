@@ -106,7 +106,7 @@ public class IOUtil {
         return buffer.toByteArray();
     }
 
-    public static String inputStreamToBase64(InputStream inputStream) throws IOException {
+    public static String inputStreamToRawBase64(InputStream inputStream) throws IOException {
         return Base64.getEncoder().encodeToString(inputStreamToBytes(inputStream));
     }
 

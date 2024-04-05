@@ -37,7 +37,7 @@ public class IOUtilTest
 
     public void testBase64() throws Exception {
         InputStream in = new FileInputStream("/tmp/dogandcat.png");
-        String base64 = IOUtil.inputStreamToBase64(in);
+        String base64 = IOUtil.inputStreamToRawBase64(in);
         System.out.println("base64 = " + base64);
     }
 }
