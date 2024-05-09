@@ -110,6 +110,22 @@ public class IOUtil {
         return Base64.getEncoder().encodeToString(inputStreamToBytes(inputStream));
     }
 
+    public static void inputStreamToFile(InputStream inputStream, String filePath) throws IOException {
+        FileOutputStream fout = null;
+        try {
+            fout = new FileOutputStream(filePath);
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                fout.write(buffer, 0, bytesRead);
+            }
+            fout.flush();
+        }
+        finally {
+            closeOutputStream(fout);
+        }
+    }
+
     public static void closeInputStream(InputStream in) {
         if(in == null)
             return;
