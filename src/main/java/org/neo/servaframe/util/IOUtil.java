@@ -53,26 +53,15 @@ public class IOUtil {
     }
 
     public static String fileToString(String filePath) throws IOException, FileNotFoundException {
-        FileInputStream fin = null;
-        try {
-            fin = new FileInputStream(filePath);
+        try(FileInputStream fin = new FileInputStream(filePath)) {
             return inputStreamToString(fin);
-        }
-        finally {
-            closeInputStream(fin);
         }
     }
 
     public static void stringToFile(String content, String filePath) throws IOException {
-        FileOutputStream fout = null;
-        try {
-            File file = new File(filePath);
-            fout = new FileOutputStream(file);
+        try(FileOutputStream fout = new FileOutputStream(filePath)) {
             stringToOutputStream(content, fout);
             fout.flush();
-        }
-        finally {
-            closeOutputStream(fout);
         }
     }
 
@@ -110,10 +99,26 @@ public class IOUtil {
         return Base64.getEncoder().encodeToString(inputStreamToBytes(inputStream));
     }
 
+    public static byte[] rawBase64ToBytes(String rawBase64) {
+        return Base64.getDecoder().decode(rawBase64);
+    }
+
+    public String bytesToRawBase64(byte[] bytes) {
+        return Base64.getEncoder().encodeToString(bytes);
+    }
+
+    public static void rawBase64ToFile(String rawBase64, String filePath) throws IOException {
+        bytesToFile(rawBase64ToBytes(rawBase64), filePath); 
+    }
+
+    public static String fileToRawBase64(String filePath) throws IOException {
+        try(FileInputStream fin = new FileInputStream(filePath)) {
+            return inputStreamToRawBase64(fin);
+        }
+    }
+
     public static void inputStreamToFile(InputStream inputStream, String filePath) throws IOException {
-        FileOutputStream fout = null;
-        try {
-            fout = new FileOutputStream(filePath);
+        try(FileOutputStream fout = new FileOutputStream(filePath)) {
             byte[] buffer = new byte[1024];
             int bytesRead;
             while ((bytesRead = inputStream.read(buffer)) != -1) {
@@ -121,9 +126,18 @@ public class IOUtil {
             }
             fout.flush();
         }
-        finally {
-            closeOutputStream(fout);
+    }
+
+    public static void bytesToFile(byte[] bytes, String filePath) throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(filePath)) {
+            fos.write(bytes);
         }
+    }
+
+    public static byte[] fileToBytes(String filePath) throws Exception {
+        try (FileInputStream fin = new FileInputStream(filePath)) {
+            return inputStreamToBytes(fin); 
+        } 
     }
 
     public static void closeInputStream(InputStream in) {

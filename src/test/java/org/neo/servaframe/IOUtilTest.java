@@ -36,8 +36,21 @@ public class IOUtilTest
     }
 
     public void testBase64() throws Exception {
-        InputStream in = new FileInputStream("/tmp/dogandcat.png");
-        String base64 = IOUtil.inputStreamToRawBase64(in);
-        System.out.println("base64 = " + base64);
+        try (InputStream in = new FileInputStream("/tmp/dogandcat.png")) {
+            String base64 = IOUtil.inputStreamToRawBase64(in);
+            System.out.println("base64 = " + base64);
+        }
+    }
+
+    public void testBytesToFile() throws Exception {
+        String filePath = "/tmp/dogandcat.png";
+        byte[] bytes = IOUtil.fileToBytes(filePath);
+        String newFilePath = "/tmp/temp.png";
+        IOUtil.bytesToFile(bytes, newFilePath);
+        byte[] bytes2 = IOUtil.fileToBytes(newFilePath);
+        assertEquals(bytes.length, bytes2.length);
+        for(int i = 0;i < bytes.length;i++) {
+            assertEquals(bytes[i], bytes2[i]);
+        }
     }
 }
