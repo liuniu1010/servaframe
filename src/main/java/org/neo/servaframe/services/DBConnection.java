@@ -15,8 +15,6 @@ import java.sql.ResultSetMetaData;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.log4j.Logger;
-
 import org.neo.servaframe.interfaces.DBConnectionIFC;
 import org.neo.servaframe.model.VersionEntity;
 import org.neo.servaframe.model.SQLStruct;
@@ -27,7 +25,7 @@ import org.neo.servaframe.model.SQLStruct;
  *
  */
 public class DBConnection implements DBConnectionIFC {
-    final static Logger logger = Logger.getLogger(DBConnection.class);
+    final static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(DBConnection.class);
 
     private Connection conn = null;
     private boolean connValid = false;
