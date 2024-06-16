@@ -48,6 +48,17 @@ public class DBService implements DBServiceIFC {
             conn.commit();
             return toReturn;
         }
+        catch(RuntimeException rex) {
+            if(conn != null) {
+                try {
+                    conn.rollback();
+                }
+                catch(SQLException se2) {
+                    throw new RuntimeException(se2);
+                }
+            }
+            throw rex; 
+        }
         catch(Exception se) {
             if(conn != null) {
                 try {
@@ -57,7 +68,7 @@ public class DBService implements DBServiceIFC {
                     throw new RuntimeException(se2);
                 }
             }
-            throw new RuntimeException(se);
+            throw new RuntimeException(se.getMessage(), se);
         }
         finally {
             if(dbConnection != null) {
