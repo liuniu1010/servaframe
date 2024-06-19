@@ -62,6 +62,14 @@ public interface DBConnectionIFC extends ConnectionIFC {
     public List<VersionEntity> queryAsVersionEntity(String entityName, String SQL) throws SQLException;
 
     /*
+     * execute query by the provided SQL
+     *
+     * param SQL       the SQL to be executed
+     * param return    only first result will be contructed as VersionEntity
+     */
+    public VersionEntity querySingleAsVersionEntity(String entityName, String SQL) throws SQLException;
+
+    /*
      * execute query by the provided SQLStruct
      *
      * param sqlStruct the SQLStruct to be executed
@@ -79,6 +87,14 @@ public interface DBConnectionIFC extends ConnectionIFC {
      * param return    query result will be contructed as List<VersionEntity>
      */
     public List<VersionEntity> queryAsVersionEntity(String entityName, SQLStruct sqlStruct) throws SQLException;
+
+    /*
+     * execute query by the provided SQL
+     *
+     * param SQL       the SQL to be executed
+     * param return    only first result will be contructed as VersionEntity
+     */
+    public VersionEntity querySingleAsVersionEntity(String entityName, SQLStruct sqlStruct) throws SQLException;
 
     /*
      * execute query by the provided SQL

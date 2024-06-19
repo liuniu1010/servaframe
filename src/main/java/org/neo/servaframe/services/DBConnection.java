@@ -160,6 +160,19 @@ public class DBConnection implements DBConnectionIFC {
     }
 
     @Override
+    public VersionEntity querySingleAsVersionEntity(String entityName, String SQL) throws SQLException {
+        checkValid();
+        Map<String, Object> result = this.doSingleQuery(SQL);
+        if(result == null) {
+            return null;
+        }
+
+        Set<String> attributes = result.keySet();
+        VersionEntity versionEntity = transMapToVersionEntity(entityName, result);
+        return versionEntity;
+    }
+
+    @Override
     public List<Map<String, Object>> query(SQLStruct sqlStruct) throws SQLException {
         checkValid();
         return doQuery(sqlStruct);
@@ -170,6 +183,19 @@ public class DBConnection implements DBConnectionIFC {
         checkValid();
         List<Map<String, Object>> mapList = doQuery(sqlStruct);
         return transMapListToVersionEntitys(entityName, mapList); 
+    }
+
+    @Override
+    public VersionEntity querySingleAsVersionEntity(String entityName, SQLStruct sqlStruct) throws SQLException {
+        checkValid();
+        Map<String, Object> result = this.doSingleQuery(sqlStruct);
+        if(result == null) {
+            return null;
+        }
+
+        Set<String> attributes = result.keySet();
+        VersionEntity versionEntity = transMapToVersionEntity(entityName, result);
+        return versionEntity;
     }
 
     @Override
@@ -188,25 +214,27 @@ public class DBConnection implements DBConnectionIFC {
         return doQuery(new SQLStruct(SQL, null));
     }
 
+    private Map<String, Object> doSingleQuery(String SQL) throws SQLException {
+        return doSingleQuery(new SQLStruct(SQL, null));
+    }
+
     private Object doQueryScalar(String SQL) throws SQLException {
         return doQueryScalar(new SQLStruct(SQL, null));
     }
 
     private Object doQueryScalar(SQLStruct sqlStruct) throws SQLException {
-        List<Map<String, Object>> mapList = doQuery(sqlStruct);
-        if(mapList == null || mapList.isEmpty()) {
+        Map<String, Object> map = doSingleQuery(sqlStruct);
+        if(map == null) {
             return null;
         }
-        for(Map<String, Object> map: mapList) {
-             Set<String> attributes = map.keySet();
-             if(attributes== null || attributes.isEmpty()) {
-                 return null;
-             }
-             for(String attribute: attributes) {
-                 return map.get(attribute);
-             }
-        }
 
+        Set<String> attributes = map.keySet();
+        if(attributes== null || attributes.isEmpty()) {
+            return null;
+        }
+        for(String attribute: attributes) {
+            return map.get(attribute);
+        }
         return null;
     }
 
@@ -237,6 +265,34 @@ public class DBConnection implements DBConnectionIFC {
         }
 
         return resultList;
+    }
+
+    private Map<String, Object> doSingleQuery(SQLStruct sqlStruct) throws SQLException {
+        PreparedStatement pstmt = conn.prepareStatement(sqlStruct.getSQL());
+        List<Object> params = sqlStruct.getParams();
+        if(params != null) {
+            int index = 1;
+            for(Object paramValue: params) {
+                pstmt.setObject(index, paramValue);
+                index++;
+            }
+        }
+
+        logger.debug("execute query SQL: " + sqlStruct.toString());
+        ResultSet rs = pstmt.executeQuery();
+        ResultSetMetaData rsmd = rs.getMetaData();
+        int columnCount = rsmd.getColumnCount();
+       
+        Map<String, Object> map = null; 
+        if(rs.next()) {
+            map = new HashMap<String, Object>();
+            for(int i = 1;i <= columnCount;i++) {
+                String columnName = rsmd.getColumnName(i);
+                map.put(columnName, rs.getObject(columnName));
+            }
+        }
+
+        return map;
     }
 
     @Override
@@ -281,12 +337,11 @@ public class DBConnection implements DBConnectionIFC {
         String SQL = "select * from " + name;
         SQL += " where id = " + id;
 
-        List<Map<String, Object>> resultList = this.doQuery(SQL);
-        if(resultList == null || resultList.isEmpty()) {
+        Map<String, Object> result = this.doSingleQuery(SQL);
+        if(result == null) {
             return null;
         }
 
-        Map<String, Object> result = resultList.get(0);
         Set<String> attributes = result.keySet();
         VersionEntity versionEntity = transMapToVersionEntity(name, result);
         return versionEntity;
