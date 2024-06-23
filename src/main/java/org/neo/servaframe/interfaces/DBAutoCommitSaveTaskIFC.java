@@ -5,7 +5,7 @@ package org.neo.servaframe.interfaces;
  * do some action to save in DB
  * 
  */
-public interface DBSaveTaskIFC extends TaskIFC {
+public interface DBAutoCommitSaveTaskIFC extends TaskIFC {
     /*
      * this is a callback method, the implementation of it
      * execute the real save task, the framework will call
@@ -15,5 +15,5 @@ public interface DBSaveTaskIFC extends TaskIFC {
      *                   to visit DB
      * return
      */
-    public Object save(DBConnectionIFC dbConnection);
+    public Object autoCommitSave(DBConnectionIFC dbConnection);
 }

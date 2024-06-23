@@ -20,6 +20,17 @@ public interface DBServiceIFC extends ServiceIFC{
     public Object executeSaveTask(DBSaveTaskIFC saveTask);
 
     /*
+     * execute task to save(insert, update, delete) data into DB
+     * the real action should be in in the task which implement
+     * the interface DBSaveTaskIFC
+     *
+     * param saveTask   the task which do the save action
+     * return           the returned object of saveTask.save() will be returned
+     *                  in this method
+     */
+    public Object executeAutoCommitSaveTask(DBAutoCommitSaveTaskIFC saveTask);
+
+    /*
      * execute query task(select) data from DB
      * the real select action should be in the task which 
      * implement the interface QueryTaskIFC

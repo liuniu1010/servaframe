@@ -7,6 +7,7 @@ import java.sql.SQLException;
 
 import org.neo.servaframe.interfaces.DBServiceIFC;
 import org.neo.servaframe.interfaces.DBSaveTaskIFC;
+import org.neo.servaframe.interfaces.DBAutoCommitSaveTaskIFC;
 import org.neo.servaframe.interfaces.DBQueryTaskIFC;
 import org.neo.servaframe.interfaces.DBConnectionIFC;
 import org.neo.servaframe.util.ConfigUtil;
@@ -69,6 +70,35 @@ public class DBService implements DBServiceIFC {
                 }
             }
             throw new RuntimeException(se.getMessage(), se);
+        }
+        finally {
+            if(dbConnection != null) {
+                dbConnection.close();
+            }
+        }
+    }
+
+    @Override
+    public Object executeAutoCommitSaveTask(DBAutoCommitSaveTaskIFC saveTask) {
+        DBConnectionIFC dbConnection = null;
+        Connection conn = null;
+        try{
+            String dbUrl = ConfigUtil.getDbUrl();
+            String dbUsername = ConfigUtil.getDbUsername();
+            String dbPassword = ConfigUtil.getDbPassword();
+
+            conn = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
+            conn.setAutoCommit(true);
+
+            dbConnection = new DBConnection(conn);
+            Object toReturn = saveTask.autoCommitSave(dbConnection);
+            return toReturn;
+        }
+        catch(RuntimeException rex) {
+            throw rex;
+        }
+        catch(Exception se) {
+            throw new RuntimeException(se);
         }
         finally {
             if(dbConnection != null) {
