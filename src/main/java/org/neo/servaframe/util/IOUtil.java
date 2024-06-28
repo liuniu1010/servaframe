@@ -58,6 +58,12 @@ public class IOUtil {
         }
     }
 
+    public static String resourceFileToString(String fileName) throws IOException, FileNotFoundException {
+        ClassLoader classLoader = IOUtil.class.getClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream(fileName);
+        return IOUtil.inputStreamToString(inputStream);
+    }
+
     public static void stringToFile(String content, String filePath) throws IOException {
         try(FileOutputStream fout = new FileOutputStream(filePath)) {
             stringToOutputStream(content, fout);
