@@ -64,7 +64,7 @@ public class ConfigUtil {
     private static List<String> serviceConfigList = null;
     private static List<String> getServiceConfigList()  throws IOException, FileNotFoundException {
         if(serviceConfigList == null) {
-            serviceConfigList = getTextFileContent(SERVICE_CONFIG_FILE);
+            serviceConfigList = getTextFileInLines(SERVICE_CONFIG_FILE);
         }
         return serviceConfigList;
     }
@@ -72,12 +72,12 @@ public class ConfigUtil {
     private static List<String> dbConfigList = null;
     private static List<String> getDbConfigList() throws IOException, FileNotFoundException {
         if(dbConfigList == null) {
-            dbConfigList = getTextFileContent(DB_CONFIG_FILE);
+            dbConfigList = getTextFileInLines(DB_CONFIG_FILE);
         }
         return dbConfigList;
     }
 
-    private static List<String> getTextFileContent(String fileName) throws IOException, FileNotFoundException {
+    public static List<String> getTextFileInLines(String fileName) throws IOException, FileNotFoundException {
         BufferedReader br = null;
         InputStream in = null;
         List<String> contentList = new ArrayList<String>();
