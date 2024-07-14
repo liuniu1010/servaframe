@@ -98,7 +98,7 @@ public class DBServiceTest
         VersionEntity employee = generateEmployee();
         int numberBefore = getNumberOfEmployee();
         try {
-            insertEmployeeWithException(employee);
+            insertEmployeeWithExceptionInTransaction(employee);
         }
         catch(Exception ex) {
         } 
@@ -108,7 +108,21 @@ public class DBServiceTest
         System.out.println("testTransaction passed");
     }
 
-    private void insertEmployeeWithException(VersionEntity employee) {
+    public void testAutoCommit() {
+        VersionEntity employee = generateEmployee();
+        int numberBefore = getNumberOfEmployee();
+        try {
+            insertEmployeeWithExceptionInAutoCommit(employee);
+        }
+        catch(Exception ex) {
+        } 
+        int numberAfter = getNumberOfEmployee();
+        assertEquals(numberBefore, 0);
+        assertEquals(numberAfter, 1);
+        System.out.println("testAutoCommit passed");
+    }
+
+    private void insertEmployeeWithExceptionInTransaction(VersionEntity employee) {
         // instantiate DBService
         DBServiceIFC dbService = ServiceFactory.getDBService();
 
@@ -116,6 +130,30 @@ public class DBServiceTest
         dbService.executeSaveTask(new DBSaveTaskIFC() {
             @Override
             public Object save(DBConnectionIFC dbConnection) {
+                try {
+                    // do business logic
+                    dbConnection.insert(employee);
+                    if(true) {
+                        // meet exception
+                        throw new RuntimeException("test roll back");
+                    }
+                    return null;
+                }
+                catch(SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+    }
+
+    private void insertEmployeeWithExceptionInAutoCommit(VersionEntity employee) {
+        // instantiate DBService
+        DBServiceIFC dbService = ServiceFactory.getDBService();
+
+        // start to execute Task
+        dbService.executeAutoCommitSaveTask(new DBAutoCommitSaveTaskIFC() {
+            @Override
+            public Object autoCommitSave(DBConnectionIFC dbConnection) {
                 try {
                     // do business logic
                     dbConnection.insert(employee);
