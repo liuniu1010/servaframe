@@ -260,7 +260,7 @@ public class DBServiceTest
         System.out.println("testQueryScalar passed");
     }
 
-    private String getEmployeeName(long employeeId) {
+    private String getEmployeeName(String employeeId) {
         // instantiate DBService
         DBServiceIFC dbService = ServiceFactory.getDBService();
 
@@ -319,7 +319,7 @@ public class DBServiceTest
         System.out.println("testLoadById passed");
     }
 
-    private VersionEntity loadById(long employeeId) {
+    private VersionEntity loadById(String employeeId) {
         // instantiate DBService
         DBServiceIFC dbService = ServiceFactory.getDBService();
 

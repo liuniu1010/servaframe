@@ -131,7 +131,7 @@ public interface DBConnectionIFC extends ConnectionIFC {
      * param id
      * return VersionEntity
      */
-    public VersionEntity loadVersionEntityById(String entityName, long id) throws SQLException;
+    public VersionEntity loadVersionEntityById(String entityName, String id) throws SQLException;
 
     /*
      * return if current connection is valid

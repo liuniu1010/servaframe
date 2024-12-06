@@ -1,5 +1,5 @@
 create table employee (
-id                 int                not null primary key,
+id                 char(36)           not null primary key,
 version            int                not null,
 no                 varchar(10)        not null unique,
 name               varchar(30),

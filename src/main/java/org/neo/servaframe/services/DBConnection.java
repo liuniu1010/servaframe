@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
 import java.sql.PreparedStatement;
 import java.sql.Connection;
@@ -120,7 +121,7 @@ public class DBConnection implements DBConnectionIFC {
             SQL += ", " + attribute + " = ?";
         }
 
-        SQL += " where id = " + versionEntity.getId();
+        SQL += " where id = '" + versionEntity.getId() + "'";
         // SQL += " and version = " + versionEntity.getVersion();  // comment it out in case version control is not necessary
 
         List<Object> params = new ArrayList<Object>();
@@ -141,7 +142,7 @@ public class DBConnection implements DBConnectionIFC {
     private void doDelete(VersionEntity versionEntity) throws SQLException {
         // construct the SQL
         String SQL = "delete from " + versionEntity.getName();
-        SQL += " where id = " + versionEntity.getId();
+        SQL += " where id = '" + versionEntity.getId() + "'";
        
         this.doExecute(SQL); 
     }
@@ -327,15 +328,15 @@ public class DBConnection implements DBConnectionIFC {
     }
 
     @Override
-    public VersionEntity loadVersionEntityById(String entityName, long id) throws SQLException {
+    public VersionEntity loadVersionEntityById(String entityName, String id) throws SQLException {
         checkValid();
         return doLoadVersionEntityById(entityName, id);
     }
 
-    private VersionEntity doLoadVersionEntityById(String name, long id) throws SQLException {
+    private VersionEntity doLoadVersionEntityById(String name, String id) throws SQLException {
         // construct the SQL to load the entity
         String SQL = "select * from " + name;
-        SQL += " where id = " + id;
+        SQL += " where id = '" + id + "'";
 
         Map<String, Object> result = this.doSingleQuery(SQL);
         if(result == null) {
@@ -348,43 +349,8 @@ public class DBConnection implements DBConnectionIFC {
     }
 
 
-    private static Map<String, AtomicLong> newIdMap = new HashMap<String, AtomicLong>();
-    private long assignNewId(String entityName) throws SQLException {
-        if(newIdMap.containsKey(entityName)) {
-            AtomicLong newId = newIdMap.get(entityName);
-            return newId.incrementAndGet();
-        }
-
-        String SQL = "select MAX(ID) AS MAXID from " + entityName;
-        List<Map<String, Object>> resultList = this.doQuery(SQL);
-        Long maxId = null;
-        if(resultList == null || resultList.size() == 0) {
-            // nosuch record, init newId as 0
-            maxId = new Long(0);
-        }
-        else {
-            Map<String, Object> resultMap = resultList.get(0);
-            Object result = resultMap.get("MAXID");
-            if(result == null) {
-                maxId = new Long(0);
-            }
-            else {
-                maxId = Long.valueOf(result.toString());
-            }
-        }
-
-        synchronized(newIdMap) {
-            /***
-             * the reason to synchronized this block
-             * is to prevent two thread from running into it 
-             * and getting the same newId for the same entity
-             */
-            if(!newIdMap.containsKey(entityName)) {
-                AtomicLong atomicId = new AtomicLong(maxId);
-                newIdMap.put(entityName, atomicId);
-            }
-        }
-        return assignNewId(entityName);
+    private String assignNewId(String entityName) throws SQLException {
+        return UUID.randomUUID().toString();
     }
 
     private VersionEntity transMapToVersionEntity(String entityName, Map<String, Object> map) {
@@ -392,7 +358,7 @@ public class DBConnection implements DBConnectionIFC {
         VersionEntity versionEntity = new VersionEntity(entityName);
         for(String attribute: attributes) {
             if(attribute.equalsIgnoreCase("ID")) {
-                versionEntity.setId(Long.valueOf(map.get(attribute).toString()));
+                versionEntity.setId(map.get(attribute).toString());
             }
             else if(attribute.equalsIgnoreCase("VERSION")) {
                 versionEntity.setVersion(Long.valueOf(map.get(attribute).toString()));

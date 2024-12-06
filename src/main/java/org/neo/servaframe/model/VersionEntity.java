@@ -8,7 +8,7 @@ package org.neo.servaframe.model;
  */
 public class VersionEntity extends Entity{
     // the primary key
-    private long id;
+    private String id;
 
     // be used to version control
     private long version;
@@ -18,11 +18,11 @@ public class VersionEntity extends Entity{
         super(inputName);
     }
 
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(long inputId) {
+    public void setId(String inputId) {
         id = inputId;
     }
 
