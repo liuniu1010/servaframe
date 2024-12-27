@@ -3,7 +3,7 @@ package org.neo.servaframe.util;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -102,7 +102,7 @@ public class ConfigUtil {
         }
 
         serviceConfigList = getServiceConfigList();
-        serviceConfigCache = new HashMap<String, String>();
+        serviceConfigCache = new ConcurrentHashMap<String, String>();
         for(String line: serviceConfigList) {
             String[] parts = line.split("=");
             if(parts.length == 2) {
@@ -120,7 +120,7 @@ public class ConfigUtil {
         }
 
         dbConfigList = getDbConfigList();
-        dbConfigCache = new HashMap<String, String>();
+        dbConfigCache = new ConcurrentHashMap<String, String>();
         for(String line: dbConfigList) {
             String[] parts = splitByFirstEquals(line);
             dbConfigCache.put(parts[0].trim(), parts[1].trim());

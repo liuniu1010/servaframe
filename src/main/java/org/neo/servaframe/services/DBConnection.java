@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.UUID;
 
 import java.sql.PreparedStatement;
@@ -234,12 +234,12 @@ public class DBConnection implements DBConnectionIFC {
             return null;
         }
         for(String attribute: attributes) {
-            return map.get(attribute);
+            return map.containsKey(attribute)?map.get(attribute):null;
         }
         return null;
     }
 
-    private List<Map<String, Object>> doQuery(SQLStruct sqlStruct) throws SQLException {
+    private PreparedStatement generateStatement(SQLStruct sqlStruct) throws SQLException {
         PreparedStatement pstmt = conn.prepareStatement(sqlStruct.getSQL());
         List<Object> params = sqlStruct.getParams();
         if(params != null) {
@@ -249,6 +249,12 @@ public class DBConnection implements DBConnectionIFC {
                 index++;
             }
         }
+
+        return pstmt;
+    }
+
+    private List<Map<String, Object>> doQuery(SQLStruct sqlStruct) throws SQLException {
+        PreparedStatement pstmt = generateStatement(sqlStruct);
 
         logger.debug("execute query SQL: " + sqlStruct.toString());
         ResultSet rs = pstmt.executeQuery();
@@ -257,10 +263,13 @@ public class DBConnection implements DBConnectionIFC {
         
         List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
         while(rs.next()) {
-            Map<String, Object> map = new HashMap<String, Object>();
+            Map<String, Object> map = new ConcurrentHashMap<String, Object>();
             for(int i = 1;i <= columnCount;i++) {
                 String columnName = rsmd.getColumnName(i);
-                map.put(columnName, rs.getObject(columnName));
+                Object oValue = rs.getObject(columnName);
+                if(oValue != null) {
+                    map.put(columnName, oValue);
+                }
             }
             resultList.add(map);
         }
@@ -269,15 +278,7 @@ public class DBConnection implements DBConnectionIFC {
     }
 
     private Map<String, Object> doSingleQuery(SQLStruct sqlStruct) throws SQLException {
-        PreparedStatement pstmt = conn.prepareStatement(sqlStruct.getSQL());
-        List<Object> params = sqlStruct.getParams();
-        if(params != null) {
-            int index = 1;
-            for(Object paramValue: params) {
-                pstmt.setObject(index, paramValue);
-                index++;
-            }
-        }
+        PreparedStatement pstmt = generateStatement(sqlStruct);
 
         logger.debug("execute query SQL: " + sqlStruct.toString());
         ResultSet rs = pstmt.executeQuery();
@@ -286,10 +287,13 @@ public class DBConnection implements DBConnectionIFC {
        
         Map<String, Object> map = null; 
         if(rs.next()) {
-            map = new HashMap<String, Object>();
+            map = new ConcurrentHashMap<String, Object>();
             for(int i = 1;i <= columnCount;i++) {
                 String columnName = rsmd.getColumnName(i);
-                map.put(columnName, rs.getObject(columnName));
+                Object oValue = rs.getObject(columnName);
+                if(oValue != null) {
+                    map.put(columnName, oValue);
+                }
             }
         }
 
@@ -313,15 +317,7 @@ public class DBConnection implements DBConnectionIFC {
     }
 
     private void doExecute(SQLStruct sqlStruct) throws SQLException {
-        PreparedStatement pstmt = conn.prepareStatement(sqlStruct.getSQL());
-        List<Object> params = sqlStruct.getParams();
-        if(params != null) {
-            int index = 1;
-            for(Object paramValue: params) {
-                pstmt.setObject(index, paramValue);
-                index++;
-            }
-        }
+        PreparedStatement pstmt = generateStatement(sqlStruct);
 
         logger.info("execute persist SQL: " + sqlStruct.toString());
         pstmt.executeUpdate();
@@ -364,7 +360,7 @@ public class DBConnection implements DBConnectionIFC {
                 versionEntity.setVersion(Long.valueOf(map.get(attribute).toString()));
             }
             else {
-                versionEntity.setAttribute(attribute.toLowerCase(), map.get(attribute));
+                versionEntity.setAttribute(attribute.toLowerCase(), map.containsKey(attribute)?map.get(attribute):null);
             }
         }
         return versionEntity;
