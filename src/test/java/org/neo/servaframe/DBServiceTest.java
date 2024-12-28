@@ -173,10 +173,10 @@ public class DBServiceTest
     public void testUpdate() {
         VersionEntity employee = generateEmployee();
         insertEmployee(employee);
-        employee.setAttribute("name", "Tom2");
+        employee.setAttribute("name", null);
         updateEmployee(employee);
         VersionEntity employee2 = loadById(employee.getId());
-        assertEquals(employee2.getAttribute("name"), "Tom2");
+        assertNull(employee2.getAttribute("name"));
         System.out.println("testUpdate passed");
     }
 

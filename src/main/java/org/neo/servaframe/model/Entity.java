@@ -2,7 +2,6 @@ package org.neo.servaframe.model;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /***
  * The entity is designed to represent
@@ -12,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Entity {
     private String name;
     // all column and values are encapsulated in the Map
-    private Map<String, Object> map = new ConcurrentHashMap<String, Object>();
+    private Map<String, Object> map = new NeoConcurrentHashMap<String, Object>();
 
     public Entity(String inputName) {
         name = inputName;
@@ -27,13 +26,11 @@ public class Entity {
     }
 
     public Object getAttribute(String attributeName) {
-        return map.containsKey(attributeName)?map.get(attributeName):null;
+        return map.get(attributeName);
     }
 
     public void setAttribute(String attributeName, Object value) {
-        if(value != null) {
-            map.put(attributeName, value);
-        }
+        map.put(attributeName, value);
     }
 
     public Set<String> getAttributeNames() {
