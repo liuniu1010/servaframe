@@ -58,6 +58,12 @@ public class IOUtil {
         }
     }
 
+    public static void resourceFileToFile(String fileName, String filePath) throws IOException, FileNotFoundException {
+        ClassLoader classLoader = IOUtil.class.getClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream(fileName);
+        IOUtil.inputStreamToFile(inputStream, filePath);
+    }
+
     public static String resourceFileToString(String fileName) throws IOException, FileNotFoundException {
         ClassLoader classLoader = IOUtil.class.getClassLoader();
         InputStream inputStream = classLoader.getResourceAsStream(fileName);
@@ -115,6 +121,12 @@ public class IOUtil {
 
     public static void rawBase64ToFile(String rawBase64, String filePath) throws IOException {
         bytesToFile(rawBase64ToBytes(rawBase64), filePath); 
+    }
+
+    public static String resourceFileToRawBase64(String fileName) throws IOException {
+        ClassLoader classLoader = IOUtil.class.getClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream(fileName);
+        return inputStreamToRawBase64(inputStream);
     }
 
     public static String fileToRawBase64(String filePath) throws IOException {
