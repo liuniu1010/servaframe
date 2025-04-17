@@ -1,6 +1,5 @@
 package org.neo.servaframe.services;
 
-import java.util.Collection;
 import java.util.Set;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +13,6 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.neo.servaframe.interfaces.DBConnectionIFC;
 import org.neo.servaframe.model.VersionEntity;

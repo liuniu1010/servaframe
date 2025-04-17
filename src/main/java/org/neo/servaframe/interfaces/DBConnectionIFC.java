@@ -1,6 +1,5 @@
 package org.neo.servaframe.interfaces;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.List;
 

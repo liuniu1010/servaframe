@@ -7,7 +7,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.neo.servaframe.util.ConfigUtil;
 import org.neo.servaframe.interfaces.*;
 import org.neo.servaframe.model.*;
 
