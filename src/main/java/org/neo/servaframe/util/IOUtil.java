@@ -114,8 +114,18 @@ public class IOUtil {
         return Base64.getDecoder().decode(rawBase64);
     }
 
-    public String bytesToRawBase64(byte[] bytes) {
+    public static String bytesToRawBase64(byte[] bytes) {
         return Base64.getEncoder().encodeToString(bytes);
+    }
+
+    public static String rawBase64ToString(String rawBase64) {
+        byte[] decoded = Base64.getDecoder().decode(rawBase64);
+        return new String(decoded, StandardCharsets.UTF_8);
+    }
+
+    public static String stringToRawBase64(String text) {
+        byte[] utf8 = text.getBytes(StandardCharsets.UTF_8);
+        return Base64.getEncoder().encodeToString(utf8);
     }
 
     public static void rawBase64ToFile(String rawBase64, String filePath) throws IOException {
