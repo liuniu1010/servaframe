@@ -57,7 +57,7 @@ public class DBServiceTest
         employee.setAttribute("no", "1");
         employee.setAttribute("name", "Tom");
         employee.setAttribute("age", 23);
-        employee.setAttribute("address", "auckland");
+        employee.setAttribute("address", "auckland at 📝 ");
         employee.setAttribute("createDate", new Date());
 
         return employee;
@@ -314,6 +314,7 @@ public class DBServiceTest
         VersionEntity employee = generateEmployee();
         insertEmployee(employee);
         VersionEntity versionEntity = loadById(employee.getId());
+        System.out.println("address = " + versionEntity.getAttribute("address"));
         assertEquals(versionEntity.getAttribute("name"), "Tom");
         System.out.println("testLoadById passed");
     }

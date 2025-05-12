@@ -2,6 +2,7 @@ package org.neo.servaframe.services;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.Statement;
 import java.sql.SQLException;
 
 import org.neo.servaframe.interfaces.DBServiceIFC;
@@ -41,6 +42,7 @@ public class DBService implements DBServiceIFC {
             String dbPassword = ConfigUtil.getDbPassword();
 
             conn = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
+            initCharset(conn);
             conn.setAutoCommit(false);
 
             dbConnection = new DBConnection(conn);
@@ -87,6 +89,7 @@ public class DBService implements DBServiceIFC {
             String dbPassword = ConfigUtil.getDbPassword();
 
             conn = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
+            initCharset(conn);
             conn.setAutoCommit(true);
 
             dbConnection = new DBConnection(conn);
@@ -115,6 +118,7 @@ public class DBService implements DBServiceIFC {
             String dbPassword = ConfigUtil.getDbPassword();
 
             Connection conn = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
+            initCharset(conn);
 
             dbConnection = new DBConnection(conn);
             Object result = queryTask.query(dbConnection);
@@ -133,4 +137,14 @@ public class DBService implements DBServiceIFC {
             }
         }
     }
+
+    private void initCharset(Connection conn) throws SQLException {
+        String product = conn.getMetaData().getDatabaseProductName(); // "MySQL", "Oracle", "Microsoft SQL Server", …
+        if (product != null && product.toLowerCase().contains("mysql")) {
+            try (Statement st = conn.createStatement()) {
+                st.execute("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
+            }
+        }
+    }
+
 }
