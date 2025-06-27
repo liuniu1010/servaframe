@@ -4,7 +4,6 @@ import java.util.Set;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.UUID;
 
 import java.sql.PreparedStatement;
@@ -17,6 +16,7 @@ import java.sql.ResultSetMetaData;
 import org.neo.servaframe.interfaces.DBConnectionIFC;
 import org.neo.servaframe.model.VersionEntity;
 import org.neo.servaframe.model.SQLStruct;
+import org.neo.servaframe.model.NeoConcurrentHashMap;
 
 /***
  * DBConnection which encapsulate the DB connection
@@ -261,13 +261,11 @@ public class DBConnection implements DBConnectionIFC {
         
         List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
         while(rs.next()) {
-            Map<String, Object> map = new ConcurrentHashMap<String, Object>();
+            Map<String, Object> map = new NeoConcurrentHashMap<String, Object>();
             for(int i = 1;i <= columnCount;i++) {
-                String columnName = rsmd.getColumnName(i);
-                Object oValue = rs.getObject(columnName);
-                if(oValue != null) {
-                    map.put(columnName, oValue);
-                }
+                String columnLabel = rsmd.getColumnLabel(i);
+                Object oValue = rs.getObject(columnLabel);
+                map.put(columnLabel, oValue);
             }
             resultList.add(map);
         }
@@ -285,13 +283,11 @@ public class DBConnection implements DBConnectionIFC {
        
         Map<String, Object> map = null; 
         if(rs.next()) {
-            map = new ConcurrentHashMap<String, Object>();
+            map = new NeoConcurrentHashMap<String, Object>();
             for(int i = 1;i <= columnCount;i++) {
-                String columnName = rsmd.getColumnName(i);
-                Object oValue = rs.getObject(columnName);
-                if(oValue != null) {
-                    map.put(columnName, oValue);
-                }
+                String columnLabel = rsmd.getColumnLabel(i);
+                Object oValue = rs.getObject(columnLabel);
+                map.put(columnLabel, oValue);
             }
         }
 
