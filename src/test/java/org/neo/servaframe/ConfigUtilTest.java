@@ -1,39 +1,21 @@
 package org.neo.servaframe;
 
+import org.junit.jupiter.api.Test;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-import org.neo.servaframe.util.*;
+import org.neo.servaframe.util.ConfigUtil;
 
-/**
- * Unit test for simple App.
- */
-public class ConfigUtilTest 
-    extends TestCase {
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public ConfigUtilTest( String testName ) {
-        super( testName );
-    }
+class ConfigUtilTest {
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite() {
-        return new TestSuite( ConfigUtilTest.class );
-    }
+    @Test
+    void testGetConfigs() {
+        String jdbcDriver = assertDoesNotThrow(ConfigUtil::getJdbcDriver);
+        String dbUrl = assertDoesNotThrow(ConfigUtil::getDbUrl);
+        String dbUsername = assertDoesNotThrow(ConfigUtil::getDbUsername);
+        String dbPassword = assertDoesNotThrow(ConfigUtil::getDbPassword);
+        String dbServiceClassname = assertDoesNotThrow(ConfigUtil::getDBServiceClassname);
 
-    public void testGetConfigs() throws Exception {
-        String jdbcDriver = ConfigUtil.getJdbcDriver();
-        String dbUrl = ConfigUtil.getDbUrl();
-        String dbUsername = ConfigUtil.getDbUsername();
-        String dbPassword = ConfigUtil.getDbPassword();
-        String dbServiceClassname = ConfigUtil.getDBServiceClassname();
         System.out.println("jdbcDriver = " + jdbcDriver);
         System.out.println("dbUrl = " + dbUrl);
         System.out.println("dbUsername = " + dbUsername);
@@ -41,3 +23,4 @@ public class ConfigUtilTest
         System.out.println("dbServiceClassname = " + dbServiceClassname);
     }
 }
+

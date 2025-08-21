@@ -1,51 +1,35 @@
 package org.neo.servaframe;
 
+import java.io.InputStream;
+import java.io.FileInputStream;
 
-import java.io.*;
+import org.junit.jupiter.api.Test;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.neo.servaframe.util.*;
+import org.neo.servaframe.util.IOUtil;
 
-/**
- * Unit test for simple App.
- */
-public class IOUtilTest 
-    extends TestCase {
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public IOUtilTest( String testName ) {
-        super( testName );
-    }
+class IOUtilTest {
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite() {
-        return new TestSuite( IOUtilTest.class );
-    }
-
-    public void testBase64() throws Exception {
+    @Test
+    void testBase64() throws Exception {
         try (InputStream in = new FileInputStream("/tmp/dogandcat.png")) {
             String base64 = IOUtil.inputStreamToRawBase64(in);
             System.out.println("base64 = " + base64);
         }
     }
 
-    public void testBytesToFile() throws Exception {
+    @Test
+    void testBytesToFile() throws Exception {
         String filePath = "/tmp/dogandcat.png";
         byte[] bytes = IOUtil.fileToBytes(filePath);
         String newFilePath = "/tmp/temp.png";
         IOUtil.bytesToFile(bytes, newFilePath);
         byte[] bytes2 = IOUtil.fileToBytes(newFilePath);
         assertEquals(bytes.length, bytes2.length);
-        for(int i = 0;i < bytes.length;i++) {
+        for (int i = 0; i < bytes.length; i++) {
             assertEquals(bytes[i], bytes2[i]);
         }
     }
 }
+

@@ -12,14 +12,13 @@ import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 
-import org.apache.log4j.Logger;
 
 /***
  * utility class provides methods to visist configuration files
  *
  */
 public class ConfigUtil {
-    final static Logger logger = Logger.getLogger(ConfigUtil.class);
+    final static org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger(ConfigUtil.class);
 
     private final static String DB_CONFIG_FILE = "database.conf";
     private final static String DB_JDBC_DRIVER = "jdbcDriver";

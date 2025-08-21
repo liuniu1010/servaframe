@@ -3,24 +3,37 @@ package org.neo.servaframe.model;
 import java.util.concurrent.ConcurrentHashMap;
 
 /***
- * support null value 
+ * ConcurrentHashMap that supports storing null values by masking them
+ * with an internal sentinel object. Keys remain unchanged (null keys
+ * are still not allowed, consistent with ConcurrentHashMap).
  */
 public class NeoConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> {
-    // Placeholder object for null values
-    private static final Object NULL_PLACEHOLDER = new Object();
 
+    // Unique sentinel to represent a stored null value
+    private static final Object NULL_SENTINEL = new Object();
+
+    /**
+     * The only unchecked cast in the class is funneled through this helper.
+     * Safe because:
+     *  - Values stored are either of type V or the unique NULL_SENTINEL.
+     *  - We only ever cast back values that came from this map.
+     */
     @SuppressWarnings("unchecked")
-    private V maskNull(Object value) {
-        return value == NULL_PLACEHOLDER ? null : (V) value;
+    private V castToV(Object o) {
+        return (V) o;
     }
 
-    private Object unmaskNull(V value) {
-        return value == null ? NULL_PLACEHOLDER : value;
+    private V maskNull(Object value) {
+        return value == NULL_SENTINEL ? null : castToV(value);
+    }
+
+    private V unmaskNullV(V value) {
+        return value == null ? castToV(NULL_SENTINEL) : value;
     }
 
     @Override
     public V put(K key, V value) {
-        return maskNull(super.put(key, (V) unmaskNull(value)));
+        return maskNull(super.put(key, unmaskNullV(value)));
     }
 
     @Override
@@ -35,17 +48,18 @@ public class NeoConcurrentHashMap<K, V> extends ConcurrentHashMap<K, V> {
 
     @Override
     public boolean containsValue(Object value) {
-        return super.containsValue(unmaskNull((V) value));
+        // No cast needed: map stores either real V or the sentinel
+        return super.containsValue(value == null ? NULL_SENTINEL : value);
     }
 
     @Override
     public boolean replace(K key, V oldValue, V newValue) {
-        return super.replace(key, (V) unmaskNull(oldValue), (V) unmaskNull(newValue));
+        return super.replace(key, unmaskNullV(oldValue), unmaskNullV(newValue));
     }
 
     @Override
     public V replace(K key, V value) {
-        return maskNull(super.replace(key, (V) unmaskNull(value)));
+        return maskNull(super.replace(key, unmaskNullV(value)));
     }
 
     @Override

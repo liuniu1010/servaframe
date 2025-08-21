@@ -24,7 +24,7 @@ import org.neo.servaframe.model.NeoConcurrentHashMap;
  *
  */
 public class DBConnection implements DBConnectionIFC {
-    final static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(DBConnection.class);
+    final static org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger(DBConnection.class);
 
     private Connection conn = null;
     private boolean connValid = false;
