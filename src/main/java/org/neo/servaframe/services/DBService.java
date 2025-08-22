@@ -24,12 +24,6 @@ public class DBService implements DBServiceIFC {
 
     @Override
     public void init() {
-        try{
-            Class.forName(ConfigUtil.getJdbcDriver());
-        }
-        catch(Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
