@@ -39,7 +39,8 @@ class DBServiceTest {
         employee.setAttribute("name", "Tom");
         employee.setAttribute("age", 23);
         employee.setAttribute("address", "auckland at 📝 ");
-        employee.setAttribute("createDate", new Date());
+        employee.setAttribute("createdate", new Date());
+        employee.setAttribute("updatetime", new Date());
         return employee;
     }
 
@@ -264,6 +265,13 @@ class DBServiceTest {
         insertEmployee(employee);
         VersionEntity versionEntity = loadById(employee.getId());
         System.out.println("address = " + versionEntity.getAttribute("address"));
+        Date createDate = (Date)versionEntity.getAttribute("createdate");
+        Date updateTime = (Date)versionEntity.getAttribute("updatetime");
+        System.out.println("createDate = " + createDate);
+        System.out.println("updateTime = " + updateTime);
+
+        System.out.println("createDate.class = " + createDate.getClass());
+        System.out.println("updateTime.class = " + updateTime.getClass());
         assertEquals("Tom", versionEntity.getAttribute("name"));
         System.out.println("testLoadById passed");
     }

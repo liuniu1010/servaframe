@@ -7,6 +7,7 @@ age                int,
 gender             varchar(10),
 phone              varchar(20),
 address            varchar(100),
-createdate         date
+createdate         date,
+updatetime         datetime
 ) engine=innodb default charset=utf8mb4;
 

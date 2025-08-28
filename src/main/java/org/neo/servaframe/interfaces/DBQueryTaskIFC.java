@@ -5,7 +5,8 @@ package org.neo.servaframe.interfaces;
  * a query task without saving action
  * 
  */
-public interface DBQueryTaskIFC extends TaskIFC {
+@FunctionalInterface
+public interface DBQueryTaskIFC<T> extends TaskIFC {
     /*
      * this is a callback method, the implementation of it
      * execute the real query task, the framework will call
@@ -13,7 +14,7 @@ public interface DBQueryTaskIFC extends TaskIFC {
      *
      * param dbConnection     it is provided by framework as an interface
      *                        to visit DB
-     * return Object
+     * return T
      */
-    public Object query(DBConnectionIFC dbConnection);
+    public T query(DBConnectionIFC dbConnection);
 }

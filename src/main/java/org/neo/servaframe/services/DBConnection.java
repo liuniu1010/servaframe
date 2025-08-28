@@ -11,7 +11,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.Types;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import org.neo.servaframe.interfaces.DBConnectionIFC;
 import org.neo.servaframe.model.VersionEntity;
@@ -251,6 +256,21 @@ public class DBConnection implements DBConnectionIFC {
         return pstmt;
     }
 
+    private Object convertObjectForCompatible(Object obj) {
+        if(obj == null) {
+            return null;
+        }
+        else if(obj instanceof LocalDate) {
+            return java.util.Date.from(((LocalDate)obj).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        }
+        else if(obj instanceof LocalDateTime) {
+            return java.util.Date.from(((LocalDateTime)obj).atZone(ZoneId.systemDefault()).toInstant());
+        }
+        else {
+            return obj;
+        }
+    }
+
     private List<Map<String, Object>> doQuery(SQLStruct sqlStruct) throws SQLException {
         PreparedStatement pstmt = generateStatement(sqlStruct);
 
@@ -264,7 +284,18 @@ public class DBConnection implements DBConnectionIFC {
             Map<String, Object> map = new NeoConcurrentHashMap<String, Object>();
             for(int i = 1;i <= columnCount;i++) {
                 String columnLabel = rsmd.getColumnLabel(i);
-                Object oValue = rs.getObject(columnLabel);
+                Object oValue = null;
+                int columnType = rsmd.getColumnType(i);
+                if(columnType == Types.DATE) {
+                    oValue = rs.getObject(i, LocalDate.class);
+                }
+                else if(columnType == Types.TIMESTAMP) {
+                    oValue = rs.getObject(i, LocalDateTime.class);
+                }
+                else {
+                    oValue = rs.getObject(i);
+                }
+                oValue = convertObjectForCompatible(oValue);
                 map.put(columnLabel, oValue);
             }
             resultList.add(map);
@@ -286,7 +317,18 @@ public class DBConnection implements DBConnectionIFC {
             map = new NeoConcurrentHashMap<String, Object>();
             for(int i = 1;i <= columnCount;i++) {
                 String columnLabel = rsmd.getColumnLabel(i);
-                Object oValue = rs.getObject(columnLabel);
+                Object oValue = null;
+                int columnType = rsmd.getColumnType(i);
+                if(columnType == Types.DATE) {
+                    oValue = rs.getObject(i, LocalDate.class);
+                }
+                else if(columnType == Types.TIMESTAMP) {
+                    oValue = rs.getObject(i, LocalDateTime.class);
+                }
+                else {
+                    oValue = rs.getObject(i);
+                }
+                oValue = convertObjectForCompatible(oValue);
                 map.put(columnLabel, oValue);
             }
         }
